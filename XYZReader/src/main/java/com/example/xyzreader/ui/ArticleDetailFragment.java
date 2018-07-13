@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.ShareCompat;
@@ -59,6 +60,7 @@ public class ArticleDetailFragment extends Fragment implements
 CollapsingToolbarLayout collapsingToolbarLayout;
     private CoordinatorLayout mDrawInsetsFrameLayout;
     Toolbar Toolbar;
+    AppBarLayout appBarLayout;
     private ColorDrawable mStatusBarColorDrawable;
 
     private int mTopInset;
@@ -159,6 +161,9 @@ CollapsingToolbarLayout collapsingToolbarLayout;
             }
         });
         collapsingToolbarLayout = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
+
+        appBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
+
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
 //        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
@@ -224,7 +229,7 @@ CollapsingToolbarLayout collapsingToolbarLayout;
             return;
         }
 
-        TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
+        final TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
@@ -239,7 +244,27 @@ CollapsingToolbarLayout collapsingToolbarLayout;
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
-            collapsingToolbarLayout.setTitle(titleView.getText().toString());
+
+
+            appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                boolean isShow = true;
+                int scrollRange = -1;
+
+                @Override
+                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                    if (scrollRange == -1) {
+                        scrollRange = appBarLayout.getTotalScrollRange();
+                    }
+                    if (scrollRange + verticalOffset == 0) {
+                        collapsingToolbarLayout.setTitle(titleView.getText().toString());
+                        isShow = true;
+                    } else if (isShow) {
+                        collapsingToolbarLayout.setTitle(" ");//carefull there should a space between double quote otherwise it wont work
+                        isShow = false;
+                    }
+                }
+            });
+
             Log.d("TITLE", "bindViews: " + titleView.getText().toString());
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
