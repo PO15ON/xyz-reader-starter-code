@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -51,6 +52,8 @@ public class ArticleDetailFragment extends Fragment implements
     private static final float PARALLAX_FACTOR = 1.25f;
 
     Typeface titleTypeFace, subTypeFace, bodyTypeFace;
+
+    FloatingActionButton fab;
 
     private Cursor mCursor;
     private long mItemId;
@@ -152,6 +155,8 @@ CollapsingToolbarLayout collapsingToolbarLayout;
 //            }
 //        });
 
+        fab = (FloatingActionButton) mRootView.findViewById(R.id.share_fab);
+
         Toolbar = (Toolbar) mRootView.findViewById(R.id.tool_bar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(Toolbar);
         Toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -169,9 +174,19 @@ CollapsingToolbarLayout collapsingToolbarLayout;
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
-        mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            fab.setElevation((float) 6);
+            float elev = fab.getElevation();
+            Log.d("ELEVATION", "onDClick: " + elev);
+        }
+        fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    fab.setElevation((float) 12);
+                    float elev = fab.getElevation();
+                    Log.d("ELEVATION", "onClick: " + elev);
+                }
                 startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
                         .setType("text/plain")
                         .setText("Some sample text")
